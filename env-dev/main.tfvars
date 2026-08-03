@@ -52,3 +52,8 @@ mongodb-svc = {
   name = "rbmongodb"
 }
 
+servicebus-svc = {
+  name = "rbservicebus"
+  sku  = "Standard"
+}
+

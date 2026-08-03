@@ -74,6 +74,17 @@ module "mongodb-svc" {
   env         = var.env
 }
 
+module "servicebus-svc" {
+  source      = "./modules/servicebus"
+  env         = var.env
+  name        = var.servicebus-svc["name"]
+  rg_location = azurerm_resource_group.main.location
+  rg_name     = azurerm_resource_group.main.name
+  sku         = var.servicebus-svc["sku"]
+}
+
+
+
 #
 # module "aks" {
 #   source          = "./modules/aks"
