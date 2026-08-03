@@ -22,6 +22,6 @@ default_rg_name = "denmark-east-rg"
 
 mysql-svc = {
   name     = "rbmysql"
-  sku_name = "Standard_B1ms"
+  sku_name = "B_Standard_B1ms"
 }
 
