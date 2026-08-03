@@ -25,3 +25,8 @@ mysql-svc = {
   sku_name = "B_Standard_B1ms"
 }
 
+redis-svc = {
+  name     = "rbredis"
+  sku_name = "Balanced_B1"
+}
+
