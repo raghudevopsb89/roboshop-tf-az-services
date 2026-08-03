@@ -2,8 +2,26 @@ env           = "dev"
 location      = "Denmark East"
 address_space = ["10.20.0.0/22"]
 subnets = {
-  app = "10.20.0.0/24"
-  db  = "10.20.1.0/24"
+  app = {
+    cidr = "10.20.0.0/24"
+    subnet_delegations = [
+      {
+        name                       = "aks-delegation"
+        service_delegation_name    = "Microsoft.ContainerService/managedClusters"
+        service_delegation_actions = []
+      }
+    ]
+  }
+  db = {
+    cidr = "10.20.1.0/24"
+    subnet_delegations = [
+      {
+        name                       = "mysql-delegation"
+        service_delegation_name    = "Microsoft.DBforMySQL/flexibleServers"
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+      }
+    ]
+  }
 }
 
 vms = {

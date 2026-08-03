@@ -15,7 +15,22 @@ resource "azurerm_subnet" "main" {
   name                 = each.key
   resource_group_name  = azurerm_resource_group.main.name
   virtual_network_name = azurerm_virtual_network.main.name
-  address_prefixes     = [each.value]
+  address_prefixes     = [each.value["cidr"]]
+
+  # Outer block iterates over each delegation item
+  dynamic "delegation" {
+    for_each = each.value["subnet_delegations"]
+    content {
+      name = delegation.value.name
+
+      # Inner block sets the dynamic service delegation values
+      service_delegation {
+        name    = delegation.value.service_delegation_name
+        actions = delegation.value.service_delegation_actions
+      }
+    }
+  }
+
 }
 
 resource "azurerm_virtual_network_peering" "default-to-new" {
@@ -42,14 +57,14 @@ module "mysql-svc" {
   env         = var.env
 }
 
-module "redis-svc" {
-  source      = "./modules/redis"
-  name        = var.redis-svc["name"]
-  rg_location = azurerm_resource_group.main.location
-  rg_name     = azurerm_resource_group.main.name
-  sku_name    = var.redis-svc["sku_name"]
-  env         = var.env
-}
+# module "redis-svc" {
+#   source      = "./modules/redis"
+#   name        = var.redis-svc["name"]
+#   rg_location = azurerm_resource_group.main.location
+#   rg_name     = azurerm_resource_group.main.name
+#   sku_name    = var.redis-svc["sku_name"]
+#   env         = var.env
+# }
 
 
 
