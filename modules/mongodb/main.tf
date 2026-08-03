@@ -4,7 +4,7 @@ resource "azurerm_cosmosdb_account" "main" {
   resource_group_name  = var.rg_name
   offer_type           = "Standard"
   kind                 = "MongoDB"
-  mongo_server_version = 7.0
+  mongo_server_version = "7.0"
 
   consistency_policy {
     consistency_level = "Strong"
