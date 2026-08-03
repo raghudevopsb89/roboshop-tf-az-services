@@ -17,4 +17,10 @@ resource "azurerm_cosmosdb_account" "main" {
 
 }
 
+resource "azurerm_cosmosdb_mongo_database" "main" {
+  name                = "roboshop"
+  resource_group_name = var.rg_name
+  account_name        = azurerm_cosmosdb_account.main.name
+  throughput          = 400
+}
 
