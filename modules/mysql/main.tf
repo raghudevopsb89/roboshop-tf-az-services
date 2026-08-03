@@ -6,7 +6,7 @@ resource "azurerm_mysql_flexible_server" "main" {
   administrator_password = data.azurerm_key_vault_secret.admin_password.value
   backup_retention_days  = 7
   delegated_subnet_id    = var.subnet_id
-  sku_name               = var.subnet_id
+  sku_name               = var.sku_name
 }
 
 
