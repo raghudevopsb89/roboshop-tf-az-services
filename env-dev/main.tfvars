@@ -48,3 +48,7 @@ redis-svc = {
   sku_name = "Balanced_B1"
 }
 
+mongodb-svc = {
+  name = "rbmongodb"
+}
+

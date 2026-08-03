@@ -66,7 +66,13 @@ module "redis-svc" {
   env         = var.env
 }
 
-
+module "mongodb-svc" {
+  source      = "./modules/mongodb"
+  name        = var.mongodb-svc["name"]
+  rg_location = azurerm_resource_group.main.location
+  rg_name     = azurerm_resource_group.main.name
+  env         = var.env
+}
 
 #
 # module "aks" {

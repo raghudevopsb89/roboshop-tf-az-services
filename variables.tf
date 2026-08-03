@@ -7,6 +7,7 @@ variable "image_id" {}
 variable "default_rg_name" {}
 variable "mysql-svc" {}
 variable "redis-svc" {}
+variable "mongodb-svc" {}
 
 
 
