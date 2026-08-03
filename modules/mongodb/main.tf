@@ -5,6 +5,16 @@ resource "azurerm_cosmosdb_account" "main" {
   offer_type           = "Standard"
   kind                 = "MongoDB"
   mongo_server_version = 7.0
+
+  consistency_policy {
+    consistency_level = "Strong"
+  }
+
+  geo_location {
+    location          = "Denmark East"
+    failover_priority = 0
+  }
+
 }
 
 
