@@ -85,18 +85,18 @@ module "servicebus-svc" {
 
 
 
-#
-# module "aks" {
-#   source          = "./modules/aks"
-#   env             = var.env
-#   subnet_id       = azurerm_subnet.main["app"].id
-#   default_rg_name = var.default_rg_name
-#
-#   rg_name     = azurerm_resource_group.main.name
-#   rg_location = azurerm_resource_group.main.location
-#
-#   slack_url = "https://slack.com"
-#
-# }
-#
-#
+
+module "aks" {
+  source          = "./modules/aks"
+  env             = var.env
+  subnet_id       = azurerm_subnet.main["app"].id
+  default_rg_name = var.default_rg_name
+
+  rg_name     = azurerm_resource_group.main.name
+  rg_location = azurerm_resource_group.main.location
+
+  slack_url = "https://slack.com"
+
+}
+
+

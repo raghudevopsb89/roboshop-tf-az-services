@@ -1,0 +1,16 @@
+metrics:
+  prometheus:
+    enabled: true
+    entryPoint: metrics
+    addEntryPointsLabels: true
+    addRoutersLabels: true
+    addServicesLabels: true
+
+serviceMonitor:
+  enabled: true
+  # specify your Prometheus release label if needed
+  additionalLabels:
+    release: prometheus-stack
+  namespace: ""
+  interval: 30s
+
