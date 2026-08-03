@@ -57,14 +57,14 @@ module "mysql-svc" {
   env         = var.env
 }
 
-# module "redis-svc" {
-#   source      = "./modules/redis"
-#   name        = var.redis-svc["name"]
-#   rg_location = azurerm_resource_group.main.location
-#   rg_name     = azurerm_resource_group.main.name
-#   sku_name    = var.redis-svc["sku_name"]
-#   env         = var.env
-# }
+module "redis-svc" {
+  source      = "./modules/redis"
+  name        = var.redis-svc["name"]
+  rg_location = azurerm_resource_group.main.location
+  rg_name     = azurerm_resource_group.main.name
+  sku_name    = var.redis-svc["sku_name"]
+  env         = var.env
+}
 
 
 
