@@ -5,7 +5,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-APPS_DIR="${APPS_DIR:-/home/devops/azure-services/apps}"
+APPS_DIR=$(pwd)
 IMAGE_TAG="${IMAGE_TAG:-latest}"
 
 ACR_NAME="$(terraform output -raw acr_login_server)"
