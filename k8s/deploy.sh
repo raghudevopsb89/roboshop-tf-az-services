@@ -54,8 +54,4 @@ for f in k8s/1*.yaml k8s/20-ingress.yaml; do
   envsubst '${ACR_LOGIN_SERVER} ${IMAGE_TAG}' < "$f" | kubectl apply -f -
 done
 
-echo "==> waiting for rollouts"
-for d in $(kubectl -n roboshop get deploy -o name); do
-  kubectl -n roboshop rollout status "$d" --timeout=5m
-done
-kubectl -n roboshop get pods -o wide
+
