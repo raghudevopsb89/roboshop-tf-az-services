@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Seeds the catalogue + ratings schemas from the app repo's SQL files.
 set -euo pipefail
+APPS_DIR=$(pwd)
 
 cd "$(dirname "$0")/.."
 
-APPS_DIR="${APPS_DIR:-/home/devops/azure-services/apps}"
 
 echo "==> building seed configmap"
 kubectl -n roboshop create configmap roboshop-seed-sql \
