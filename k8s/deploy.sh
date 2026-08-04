@@ -33,6 +33,8 @@ JWT_SECRET="$(kubectl -n roboshop get secret roboshop-secrets \
   -o jsonpath='{.data.JWT_SECRET}' 2>/dev/null | base64 -d || true)"
 [ -n "$JWT_SECRET" ] || JWT_SECRET="$(openssl rand -hex 32)"
 
+az aks get-credentials --resource-group denmark-east-dev --name rbaks-dev --overwrite-existing
+
 echo "==> secrets"
 kubectl -n roboshop create secret generic roboshop-secrets \
   --from-literal=MYSQL_HOST="$MYSQL_HOST" \
