@@ -1,0 +1,12 @@
+# Dev/test dependencies for the payment service.
+# Install alongside requirements.txt:  pip install -r requirements.txt -r requirements-dev.txt
+pytest==8.3.4
+pytest-cov==6.0.0
+# The following are already pinned in requirements.txt but are listed here so the
+# test suite can be installed standalone. TestClient (fastapi.testclient) needs httpx.
+fastapi==0.109.0
+httpx==0.26.0
+azure-servicebus==7.12.3
+prometheus-fastapi-instrumentator==7.0.0
+newrelic==9.13.0
+pydantic>=2.5,<3

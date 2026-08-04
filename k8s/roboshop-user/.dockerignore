@@ -1,0 +1,10 @@
+# Without this, `COPY . .` overwrites the node_modules installed inside the
+# image with whatever is on the build host — which silently shipped a bcrypt
+# built for a different Node ABI and segfaulted on the first hash.
+node_modules
+npm-debug.log
+coverage
+.git
+.github
+test
+*.test.js

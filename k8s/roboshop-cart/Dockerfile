@@ -1,0 +1,11 @@
+FROM node:26-alpine
+WORKDIR /app
+COPY package.json server.js metrics.js ./
+RUN npm install --production
+EXPOSE 8003
+ENV NEW_RELIC_DISTRIBUTED_TRACING_ENABLED=true
+ENV NEW_RELIC_LOG=stdout
+ENV NEW_RELIC_NO_CONFIG_FILE=true
+ENV UV_THREADPOOL_SIZE=16
+ENV BCRYPT_COST=8
+CMD ["node", "server.js"]

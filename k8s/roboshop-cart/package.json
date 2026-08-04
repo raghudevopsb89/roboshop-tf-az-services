@@ -1,0 +1,25 @@
+{
+  "name": "roboshop-cart",
+  "version": "1.0.0",
+  "description": "RoboShop Cart Service - Node.js/Express/Redis",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:integration": "jest --config jest.integration.config.js --runInBand"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "newrelic": "latest",
+    "prom-client": "^15.1.3",
+    "redis": "^4.6.12"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.4",
+    "testcontainers": "^10.13.2"
+  }
+}

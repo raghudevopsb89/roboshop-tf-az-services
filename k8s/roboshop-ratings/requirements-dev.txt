@@ -1,0 +1,13 @@
+# Dev/test dependencies for the ratings service.
+# Install alongside requirements.txt:  pip install -r requirements.txt -r requirements-dev.txt
+pytest==8.3.4
+pytest-cov==6.0.0
+# Already pinned in requirements.txt; listed so the suite can be installed standalone.
+flask==3.0.1
+flask-cors==4.0.0
+prometheus-flask-exporter==0.23.1
+pymysql==1.1.0
+newrelic==9.13.0
+# Component integration tests (tests/integration/, marker: integration) spin up a real
+# MySQL container via Testcontainers. Not needed for the unit run.
+testcontainers==4.14.2

@@ -1,0 +1,9 @@
+# Keep the host's node_modules / build output out of the image so `npm install`
+# and `npm run build` run against a clean, reproducible tree.
+node_modules
+.next
+out
+npm-debug.log
+coverage
+.git
+.github
