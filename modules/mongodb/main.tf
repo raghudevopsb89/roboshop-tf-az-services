@@ -16,7 +16,6 @@ resource "azurerm_cosmosdb_account" "main" {
   }
 }
 
-# One database per consuming service: user -> users, orders -> orders.
 resource "azurerm_cosmosdb_mongo_database" "main" {
   for_each            = toset(var.databases)
   name                = each.value
@@ -25,10 +24,6 @@ resource "azurerm_cosmosdb_mongo_database" "main" {
   throughput          = 400
 }
 
-# Cosmos rejects any query that sorts on an unindexed field with
-# "The index path corresponding to the specified order-by item is excluded",
-# so the collections are declared here with the indexes the services query on
-# rather than being auto-created on first write.
 resource "azurerm_cosmosdb_mongo_collection" "main" {
   for_each            = var.collections
   name                = each.value.name

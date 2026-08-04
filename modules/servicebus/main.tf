@@ -5,8 +5,6 @@ resource "azurerm_servicebus_namespace" "main" {
   sku                 = var.sku
 }
 
-# payment publishes order messages, orders consumes them. Without this queue
-# both services fail at startup.
 resource "azurerm_servicebus_queue" "main" {
   for_each     = toset(var.queues)
   name         = each.value

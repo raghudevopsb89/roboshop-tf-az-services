@@ -10,8 +10,6 @@ resource "azurerm_kubernetes_cluster" "main" {
     node_count     = var.node_count
     vnet_subnet_id = var.subnet_id
 
-    # Azure applies these defaults server-side; declaring them keeps every plan
-    # from showing the block as drift.
     upgrade_settings {
       max_surge                     = "10%"
       drain_timeout_in_minutes      = 0
@@ -23,8 +21,6 @@ resource "azurerm_kubernetes_cluster" "main" {
     type = "SystemAssigned"
   }
 
-  # Azure CNI Overlay: pods get IPs from pod_cidr instead of burning addresses
-  # in the /24 node subnet, which only has ~250 usable IPs.
   network_profile {
     network_plugin      = "azure"
     network_plugin_mode = "overlay"
@@ -39,7 +35,6 @@ resource "azurerm_kubernetes_cluster" "main" {
   }
 }
 
-# Lets the kubelet pull the roboshop images without an imagePullSecret.
 resource "azurerm_role_assignment" "acr_pull" {
   scope                            = var.acr_id
   role_definition_name             = "AcrPull"

@@ -1,9 +1,3 @@
-# MySQL Flexible Server runs VNet-injected (delegated subnet) with public access
-# disabled, so it is ONLY reachable through a private DNS zone linked to the VNet.
-# Without this zone the server FQDN CNAMEs to <name>private.mysql.database.azure.com
-# and returns NXDOMAIN — nothing can connect. The zone name must end in
-# ".mysql.database.azure.com"; we match the name Azure derives from the server so
-# the published FQDN stays stable.
 resource "azurerm_private_dns_zone" "mysql" {
   name                = "${var.name}-${var.env}private.mysql.database.azure.com"
   resource_group_name = var.rg_name
@@ -27,11 +21,9 @@ resource "azurerm_mysql_flexible_server" "main" {
   private_dns_zone_id    = azurerm_private_dns_zone.mysql.id
   sku_name               = var.sku_name
 
-  # The zone must be linked to the VNet before the server registers its A record.
   depends_on = [azurerm_private_dns_zone_virtual_network_link.mysql]
 }
 
-# Per-service schemas. catalogue -> catalogue, shipping -> cities, ratings -> ratings.
 resource "azurerm_mysql_flexible_database" "main" {
   for_each            = toset(var.databases)
   name                = each.value
