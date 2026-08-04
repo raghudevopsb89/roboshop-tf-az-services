@@ -1,0 +1,19 @@
+# The frontend's nginx already reverse-proxies /api/* to the backend services,
+# so the ingress only needs to publish the frontend itself.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: roboshop
+  namespace: roboshop
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: roboshop-frontend
+                port:
+                  number: 80

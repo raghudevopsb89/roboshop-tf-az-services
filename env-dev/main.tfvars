@@ -2,15 +2,12 @@ env           = "dev"
 location      = "Denmark East"
 address_space = ["10.20.0.0/22"]
 subnets = {
+  # AKS node subnet. Deliberately NOT delegated: a subnet delegated to
+  # Microsoft.ContainerService/managedClusters is reserved for API Server VNet
+  # Integration and cannot be used as a node pool subnet.
   app = {
-    cidr = "10.20.0.0/24"
-    subnet_delegations = [
-      {
-        name                       = "aks-delegation"
-        service_delegation_name    = "Microsoft.ContainerService/managedClusters"
-        service_delegation_actions = []
-      }
-    ]
+    cidr               = "10.20.0.0/24"
+    subnet_delegations = []
   }
   db = {
     cidr = "10.20.1.0/24"
@@ -24,23 +21,13 @@ subnets = {
   }
 }
 
-vms = {
-  mysql = {
-    vm_size = "Standard_B1ms"
-  }
-  valkey = {}
-  mongodb = {
-    vm_size = "Standard_B1ms"
-  }
-  rabbitmq = {}
-}
-
-image_id        = "/subscriptions/3f2e42e1-ca06-4a99-8c56-be8d8ba306db/resourceGroups/denmark-east-rg/providers/Microsoft.Compute/galleries/rhel10/images/1.0.0/versions/1.0.0"
 default_rg_name = "denmark-east-rg"
 
 mysql-svc = {
   name     = "rbmysql"
   sku_name = "B_Standard_B1ms"
+  # Databases the roboshop services expect.
+  databases = ["catalogue", "cities", "ratings"]
 }
 
 redis-svc = {
@@ -50,10 +37,51 @@ redis-svc = {
 
 mongodb-svc = {
   name = "rbmongodb"
+  # user service -> users, orders service -> orders
+  databases = ["users", "orders"]
+  collections = {
+    users = {
+      name     = "users"
+      database = "users"
+      indexes = [
+        { keys = ["_id"], unique = true },
+        { keys = ["username"], unique = false },
+        { keys = ["email"], unique = false },
+      ]
+    }
+    # orders is queried with findByUserIdOrderByOrderDateDesc, so both the
+    # filter field and the sort field need an index.
+    orders = {
+      name     = "orders"
+      database = "orders"
+      indexes = [
+        { keys = ["_id"], unique = true },
+        { keys = ["userId"], unique = false },
+        { keys = ["orderDate"], unique = false },
+      ]
+    }
+  }
 }
 
 servicebus-svc = {
   name = "rbservicebus"
   sku  = "Standard"
+  # payment publishes, orders consumes
+  queues = ["orders"]
+}
+
+aks-svc = {
+  name       = "rbaks"
+  vm_size    = "Standard_B2s_v2"
+  node_count = 2
+  # Overlay keeps pod IPs off the /24 node subnet.
+  pod_cidr       = "10.244.0.0/16"
+  service_cidr   = "10.30.0.0/16"
+  dns_service_ip = "10.30.0.10"
+}
+
+acr-svc = {
+  name = "roboshopb89"
+  sku  = "Basic"
 }
 

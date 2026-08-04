@@ -11,16 +11,38 @@ resource "azurerm_cosmosdb_account" "main" {
   }
 
   geo_location {
-    location          = "Denmark East"
+    location          = var.rg_location
     failover_priority = 0
   }
-
 }
 
+# One database per consuming service: user -> users, orders -> orders.
 resource "azurerm_cosmosdb_mongo_database" "main" {
-  name                = "roboshop"
+  for_each            = toset(var.databases)
+  name                = each.value
   resource_group_name = var.rg_name
   account_name        = azurerm_cosmosdb_account.main.name
   throughput          = 400
 }
 
+# Cosmos rejects any query that sorts on an unindexed field with
+# "The index path corresponding to the specified order-by item is excluded",
+# so the collections are declared here with the indexes the services query on
+# rather than being auto-created on first write.
+resource "azurerm_cosmosdb_mongo_collection" "main" {
+  for_each            = var.collections
+  name                = each.value.name
+  resource_group_name = var.rg_name
+  account_name        = azurerm_cosmosdb_account.main.name
+  database_name       = each.value.database
+
+  dynamic "index" {
+    for_each = each.value.indexes
+    content {
+      keys   = index.value.keys
+      unique = index.value.unique
+    }
+  }
+
+  depends_on = [azurerm_cosmosdb_mongo_database.main]
+}

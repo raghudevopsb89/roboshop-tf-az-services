@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: roboshop-shipping
+  namespace: roboshop
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: roboshop-shipping }
+  template:
+    metadata:
+      labels: { app: roboshop-shipping }
+    spec:
+      containers:
+        - name: shipping
+          image: ${ACR_LOGIN_SERVER}/roboshop-shipping:${IMAGE_TAG}
+          ports: [{ containerPort: 8004 }]
+          envFrom:
+            - configMapRef: { name: roboshop-config }
+          env:
+            # Shipping owns the `cities` schema and loads it on boot
+            # (spring.sql.init.mode=always).
+            - name: DB_HOST
+              valueFrom: { secretKeyRef: { name: roboshop-secrets, key: MYSQL_HOST } }
+            - name: DB_USER
+              valueFrom: { secretKeyRef: { name: roboshop-secrets, key: MYSQL_USER } }
+            - name: DB_PASS
+              valueFrom: { secretKeyRef: { name: roboshop-secrets, key: MYSQL_PASSWORD } }
+          # Spring Boot + schema load is slow; give it up to 3 minutes to come up.
+          startupProbe:
+            httpGet: { path: /health, port: 8004 }
+            periodSeconds: 5
+            failureThreshold: 36
+          readinessProbe:
+            httpGet: { path: /health, port: 8004 }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /health, port: 8004 }
+            periodSeconds: 20
+          resources:
+            requests: { cpu: 100m, memory: 512Mi }
+            limits: { memory: 1Gi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: roboshop-shipping
+  namespace: roboshop
+spec:
+  selector: { app: roboshop-shipping }
+  ports: [{ port: 8004, targetPort: 8004 }]

@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: roboshop-cart
+  namespace: roboshop
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: roboshop-cart }
+  template:
+    metadata:
+      labels: { app: roboshop-cart }
+    spec:
+      containers:
+        - name: cart
+          image: ${ACR_LOGIN_SERVER}/roboshop-cart:${IMAGE_TAG}
+          ports: [{ containerPort: 8003 }]
+          envFrom:
+            - configMapRef: { name: roboshop-config }
+          env:
+            - name: REDIS_HOST
+              valueFrom: { secretKeyRef: { name: roboshop-secrets, key: REDIS_HOST } }
+            - name: REDIS_PORT
+              valueFrom: { secretKeyRef: { name: roboshop-secrets, key: REDIS_PORT } }
+            - name: REDIS_PASSWORD
+              valueFrom: { secretKeyRef: { name: roboshop-secrets, key: REDIS_PASSWORD } }
+          readinessProbe:
+            httpGet: { path: /health, port: 8003 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /health, port: 8003 }
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests: { cpu: 50m, memory: 96Mi }
+            limits: { memory: 384Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: roboshop-cart
+  namespace: roboshop
+spec:
+  selector: { app: roboshop-cart }
+  ports: [{ port: 8003, targetPort: 8003 }]

@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: roboshop-payment
+  namespace: roboshop
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: roboshop-payment }
+  template:
+    metadata:
+      labels: { app: roboshop-payment }
+    spec:
+      containers:
+        - name: payment
+          image: ${ACR_LOGIN_SERVER}/roboshop-payment:${IMAGE_TAG}
+          ports: [{ containerPort: 8005 }]
+          envFrom:
+            - configMapRef: { name: roboshop-config }
+          env:
+            - name: SERVICEBUS_CONNECTION_STRING
+              valueFrom: { secretKeyRef: { name: roboshop-secrets, key: SERVICEBUS_CONNECTION_STRING } }
+          readinessProbe:
+            httpGet: { path: /health, port: 8005 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /health, port: 8005 }
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { memory: 384Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: roboshop-payment
+  namespace: roboshop
+spec:
+  selector: { app: roboshop-payment }
+  ports: [{ port: 8005, targetPort: 8005 }]

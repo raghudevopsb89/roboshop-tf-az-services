@@ -1,8 +1,11 @@
+variable "name" {}
+variable "env" {}
 variable "rg_name" {}
 variable "rg_location" {}
-variable "env" {}
 variable "subnet_id" {}
-variable "slack_url" {}
-variable "default_rg_name" {}
-
-
+variable "acr_id" {}
+variable "vm_size" {}
+variable "node_count" {}
+variable "pod_cidr" {}
+variable "service_cidr" {}
+variable "dns_service_ip" {}

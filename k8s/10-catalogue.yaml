@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: roboshop-catalogue
+  namespace: roboshop
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: roboshop-catalogue }
+  template:
+    metadata:
+      labels: { app: roboshop-catalogue }
+    spec:
+      containers:
+        - name: catalogue
+          image: ${ACR_LOGIN_SERVER}/roboshop-catalogue:${IMAGE_TAG}
+          ports: [{ containerPort: 8002 }]
+          envFrom:
+            - configMapRef: { name: roboshop-config }
+          env:
+            - name: MYSQL_DATABASE
+              value: catalogue
+            - name: MYSQL_HOST
+              valueFrom: { secretKeyRef: { name: roboshop-secrets, key: MYSQL_HOST } }
+            - name: MYSQL_USER
+              valueFrom: { secretKeyRef: { name: roboshop-secrets, key: MYSQL_USER } }
+            - name: MYSQL_PASSWORD
+              valueFrom: { secretKeyRef: { name: roboshop-secrets, key: MYSQL_PASSWORD } }
+          readinessProbe:
+            httpGet: { path: /health, port: 8002 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /health, port: 8002 }
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits: { memory: 256Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: roboshop-catalogue
+  namespace: roboshop
+spec:
+  selector: { app: roboshop-catalogue }
+  ports: [{ port: 8002, targetPort: 8002 }]

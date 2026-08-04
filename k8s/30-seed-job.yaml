@@ -1,0 +1,49 @@
+# Loads the app schemas + master data. MySQL is VNet-only, so this has to run
+# from inside the cluster.
+#
+# `cities` is included because shipping runs with ddl-auto=validate AND
+# defer-datasource-initialization=true — Hibernate validates the schema *before*
+# the app's own schema.sql executes, so the table has to exist beforehand or the
+# service crash-loops. Its schema.sql/data.sql are idempotent and still populate
+# the rows on boot.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: roboshop-db-seed
+  namespace: roboshop
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: seed
+          image: mysql:8.4
+          command:
+            - bash
+            - -ec
+            - |
+              while read -r db file; do
+                [ -z "$db" ] && continue
+                echo "applying $file -> $db"
+                mysql -h "$MYSQL_HOST" -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" \
+                  --ssl-mode=REQUIRED -D "$db" < "/sql/$file"
+              done <<'FILES'
+              catalogue catalogue-schema.sql
+              catalogue catalogue-data.sql
+              ratings ratings-schema.sql
+              cities cities-schema.sql
+              FILES
+              echo "seed complete"
+          env:
+            - name: MYSQL_HOST
+              valueFrom: { secretKeyRef: { name: roboshop-secrets, key: MYSQL_HOST } }
+            - name: MYSQL_USER
+              valueFrom: { secretKeyRef: { name: roboshop-secrets, key: MYSQL_USER } }
+            - name: MYSQL_PASSWORD
+              valueFrom: { secretKeyRef: { name: roboshop-secrets, key: MYSQL_PASSWORD } }
+          volumeMounts:
+            - { name: sql, mountPath: /sql }
+      volumes:
+        - name: sql
+          configMap: { name: roboshop-seed-sql }

@@ -54,6 +54,8 @@ module "mysql-svc" {
   rg_name     = azurerm_resource_group.main.name
   sku_name    = var.mysql-svc["sku_name"]
   subnet_id   = azurerm_subnet.main["db"].id
+  vnet_id     = azurerm_virtual_network.main.id
+  databases   = var.mysql-svc["databases"]
   env         = var.env
 }
 
@@ -71,6 +73,8 @@ module "mongodb-svc" {
   name        = var.mongodb-svc["name"]
   rg_location = azurerm_resource_group.main.location
   rg_name     = azurerm_resource_group.main.name
+  databases   = var.mongodb-svc["databases"]
+  collections = var.mongodb-svc["collections"]
   env         = var.env
 }
 
@@ -81,22 +85,29 @@ module "servicebus-svc" {
   rg_location = azurerm_resource_group.main.location
   rg_name     = azurerm_resource_group.main.name
   sku         = var.servicebus-svc["sku"]
+  queues      = var.servicebus-svc["queues"]
 }
 
-
-
-
-module "aks" {
-  source          = "./modules/aks"
-  env             = var.env
-  subnet_id       = azurerm_subnet.main["app"].id
-  default_rg_name = var.default_rg_name
-
-  rg_name     = azurerm_resource_group.main.name
+module "acr-svc" {
+  source      = "./modules/acr"
+  env         = var.env
+  name        = var.acr-svc["name"]
   rg_location = azurerm_resource_group.main.location
-
-  slack_url = "https://slack.com"
-
+  rg_name     = azurerm_resource_group.main.name
+  sku         = var.acr-svc["sku"]
 }
 
-
+module "aks-svc" {
+  source         = "./modules/aks"
+  env            = var.env
+  name           = var.aks-svc["name"]
+  rg_location    = azurerm_resource_group.main.location
+  rg_name        = azurerm_resource_group.main.name
+  subnet_id      = azurerm_subnet.main["app"].id
+  acr_id         = module.acr-svc.id
+  vm_size        = var.aks-svc["vm_size"]
+  node_count     = var.aks-svc["node_count"]
+  pod_cidr       = var.aks-svc["pod_cidr"]
+  service_cidr   = var.aks-svc["service_cidr"]
+  dns_service_ip = var.aks-svc["dns_service_ip"]
+}

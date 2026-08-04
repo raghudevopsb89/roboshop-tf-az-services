@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: roboshop-ratings
+  namespace: roboshop
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: roboshop-ratings }
+  template:
+    metadata:
+      labels: { app: roboshop-ratings }
+    spec:
+      containers:
+        - name: ratings
+          image: ${ACR_LOGIN_SERVER}/roboshop-ratings:${IMAGE_TAG}
+          ports: [{ containerPort: 8006 }]
+          envFrom:
+            - configMapRef: { name: roboshop-config }
+          env:
+            - name: MYSQL_DATABASE
+              value: ratings
+            - name: MYSQL_HOST
+              valueFrom: { secretKeyRef: { name: roboshop-secrets, key: MYSQL_HOST } }
+            - name: MYSQL_USER
+              valueFrom: { secretKeyRef: { name: roboshop-secrets, key: MYSQL_USER } }
+            - name: MYSQL_PASSWORD
+              valueFrom: { secretKeyRef: { name: roboshop-secrets, key: MYSQL_PASSWORD } }
+          readinessProbe:
+            httpGet: { path: /health, port: 8006 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /health, port: 8006 }
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { memory: 384Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: roboshop-ratings
+  namespace: roboshop
+spec:
+  selector: { app: roboshop-ratings }
+  ports: [{ port: 8006, targetPort: 8006 }]

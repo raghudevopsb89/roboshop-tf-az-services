@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: roboshop-user
+  namespace: roboshop
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: roboshop-user }
+  template:
+    metadata:
+      labels: { app: roboshop-user }
+    spec:
+      containers:
+        - name: user
+          image: ${ACR_LOGIN_SERVER}/roboshop-user:${IMAGE_TAG}
+          ports: [{ containerPort: 8001 }]
+          envFrom:
+            - configMapRef: { name: roboshop-config }
+          env:
+            - name: MONGO_URL
+              valueFrom: { secretKeyRef: { name: roboshop-secrets, key: MONGO_URL_USERS } }
+            - name: JWT_SECRET
+              valueFrom: { secretKeyRef: { name: roboshop-secrets, key: JWT_SECRET } }
+          readinessProbe:
+            httpGet: { path: /health, port: 8001 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /health, port: 8001 }
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests: { cpu: 50m, memory: 96Mi }
+            limits: { memory: 384Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: roboshop-user
+  namespace: roboshop
+spec:
+  selector: { app: roboshop-user }
+  ports: [{ port: 8001, targetPort: 8001 }]
