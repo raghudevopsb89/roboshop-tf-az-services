@@ -21,8 +21,6 @@ prod-destroy: common
 	terraform destroy -auto-approve -var-file=env-prod/main.tfvars
 
 
-# ---- application layer (runs on the AKS cluster provisioned above) ----------
-
 RG  = $(shell terraform output -raw aks_resource_group 2>/dev/null)
 AKS = $(shell terraform output -raw aks_cluster_name 2>/dev/null)
 
