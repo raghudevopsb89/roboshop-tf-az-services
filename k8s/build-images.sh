@@ -2,10 +2,10 @@
 # Builds the eight roboshop service images and pushes them to the ACR created by
 # this stack. App source lives in a separate repo; point APPS_DIR at it.
 set -euo pipefail
-
+APPS_DIR=$(pwd)
 cd "$(dirname "$0")/.."
 
-APPS_DIR=$(pwd)
+
 IMAGE_TAG="${IMAGE_TAG:-latest}"
 
 ACR_NAME="$(terraform output -raw acr_login_server)"
