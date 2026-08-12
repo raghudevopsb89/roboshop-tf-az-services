@@ -33,5 +33,6 @@ metadata:
   name: roboshop-frontend
   namespace: roboshop
 spec:
+  type: LoadBalancer
   selector: { app: roboshop-frontend }
   ports: [{ port: 80, targetPort: 80 }]
